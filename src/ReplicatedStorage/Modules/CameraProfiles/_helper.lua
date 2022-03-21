@@ -1,4 +1,3 @@
-local ChangeHistoryService = game:GetService("ChangeHistoryService")
 --[[
     This module holds helper functions for use of the camera.
     Separated from the BaseClass as that should only hold as much data as it should need to.
