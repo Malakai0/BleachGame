@@ -10,19 +10,36 @@ local CameraHelper = require(ReplicatedStorage.Source.Modules.CameraProfiles._he
 local CameraProfile = {}
 CameraProfile.__index = CameraProfile
 
-function CameraProfile.new(ProfileName, ControllerReference, DefaultEnvironment)
+function CameraProfile.new(ProfileName, ControllerReference, ID, DefaultEnvironment)
     local self = {
         Name = ProfileName,
         Controller = ControllerReference,
-        Environment = TableUtil.Reconcile({CFrame = CFrame.new(), Rotation = Vector2.new(0,0)}, DefaultEnvironment),
         Helper = CameraHelper,
+        ProfileID = ID,
+        Environment = TableUtil.Reconcile({
+            CFrame = CFrame.new(),
+            Rotation = Vector2.new(0, math.rad(-40)),
 
+            LastPosition = Vector2.new(0, 0),
+            Delta = Vector2.new(0, 0)
+        }, (DefaultEnvironment or {})),
+
+        _initialized = false,
         _updateWarn = false,
     }
 
     setmetatable(self, CameraProfile)
 
     return self
+end
+
+function CameraProfile:GenerateUniqueString(String)
+    return string.format("%s (%s) %s", self.Name, self.ProfileID, String)
+end
+
+function CameraProfile:Deintialize()
+    -- No warn here, may not be necessary in some profiles.
+    return
 end
 
 function CameraProfile:Initialize()

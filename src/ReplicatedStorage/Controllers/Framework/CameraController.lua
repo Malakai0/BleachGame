@@ -63,10 +63,11 @@ end
 function CameraController:InitializeProfile()
     local Profile = self:GetProfile()
 
-    if not Profile then
+    if not Profile or Profile._initialized then
         return
     end
 
+    Profile._initialized = true
     Profile:Initialize()
 end
 
@@ -78,7 +79,9 @@ function CameraController:ActivateProfile(ProfileName, Environment)
     end
 
     local ProfileID = HttpService:GenerateGUID(false)
-    local Profile = setmetatable(TableUtil.Copy(ProfileTemplate), BaseProfile.new(ProfileName, self, Environment or {}))
+    local Profile = setmetatable(TableUtil.Copy(ProfileTemplate), {
+        __index = BaseProfile.new(ProfileName, self, ProfileID, Environment or {})
+    })
 
     self._activeProfiles[ProfileID] = Profile
 
@@ -86,10 +89,13 @@ function CameraController:ActivateProfile(ProfileName, Environment)
 end
 
 function CameraController:DeactivateProfile(ProfileID)
-    if not self._activeProfiles[ProfileID] then
+    local Profile = self._activeProfiles[ProfileID]
+
+    if not Profile then
         return
     end
 
+    Profile:Deinitialize()
     self._activeProfiles[ProfileID] = nil
 end
 
@@ -110,11 +116,24 @@ function CameraController:KnitInit()
     self._activeProfiles = {}
     self._shakeActive = false
 
+    local lastProfile
+
     self._cameraUpdater = RunService.Heartbeat:Connect(function(dt)
         local Profile = self:GetProfile()
-        if Profile then
+
+        if Profile ~= lastProfile then
+            if lastProfile then
+                lastProfile:Deinitialize()
+            end
+
+            self:InitializeProfile()
+        end
+
+        if Profile and Profile._initialized then
             Profile:Update(dt)
         end
+
+        lastProfile = Profile
     end)
 
     local _shake = Shake.new()
@@ -134,7 +153,9 @@ function CameraController:KnitInit()
 end
 
 function CameraController:KnitStart()
-
+    self:ActivateProfile("Default", {
+        Zoom = 1
+    }) --// Initialize the Default profile off the rip.
 end
 
 return CameraController

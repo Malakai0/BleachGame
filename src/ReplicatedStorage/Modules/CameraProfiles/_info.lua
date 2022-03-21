@@ -8,6 +8,7 @@
 
     CameraProfile.Priority - an abritrary number; of all the active profiles, the highest is used.
     CameraProfile:Initialize() - where all the camera setup stuff should be done; CameraTypes, Subjects, etc.
+    CameraProfile:Deinitialize() - used to deinitialize profiles: destroy connections, hide fx, etc.
     CameraProfile:Update(deltaTime: number) - each frame, this will call and should update the camera's position.
 
     All camera profiles inherit _std.lua
