@@ -47,7 +47,17 @@ function CameraController:SetPriority(ProfileID, Priority)
     end
 end
 
--- TODO: Think of better name.
+function CameraController:_initializeProfile()
+    local Profile = self:GetProfile()
+
+    if not Profile or Profile._initialized then
+        return
+    end
+
+    Profile._initialized = true
+    Profile:Initialize()
+end
+
 function CameraController:GetProfile()
     local Profile = nil
 
@@ -58,17 +68,6 @@ function CameraController:GetProfile()
     end
 
     return Profile
-end
-
-function CameraController:InitializeProfile()
-    local Profile = self:GetProfile()
-
-    if not Profile or Profile._initialized then
-        return
-    end
-
-    Profile._initialized = true
-    Profile:Initialize()
 end
 
 function CameraController:ActivateProfile(ProfileName, Environment)
@@ -126,7 +125,7 @@ function CameraController:KnitInit()
                 lastProfile:Deinitialize()
             end
 
-            self:InitializeProfile()
+            self:_initializeProfile()
         end
 
         if Profile and Profile._initialized then
