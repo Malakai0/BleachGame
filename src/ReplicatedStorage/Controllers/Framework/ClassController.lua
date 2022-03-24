@@ -39,11 +39,11 @@ function ClassController:GetClassArray()
     return TableUtil.Copy(Compatibilities._CLASS_LIST)
 end
 
-function ClassController:DeactivateIncompatibleClasses(ClassName)
+function ClassController:DeactivateIncompatibleClasses(ClassName, StopSelf)
     for _, IncompatibleClass in pairs(Compatibilities.GetIncompatibilities(ClassName)) do
         for _, Class in pairs(self._activeClasses) do
             local Name = Class.Name
-            if Name == IncompatibleClass and Name ~= ClassName then
+            if Name == IncompatibleClass and ((Name == ClassName and StopSelf) or Name ~= ClassName) then
                 self:DeactivateClass(Name)
             end
         end
@@ -61,7 +61,7 @@ function ClassController:ActivateClass(ClassName, Environment)
         __index = BaseClass.new(ClassName, self, Environment or {})
     })
 
-    self:DeactivateIncompatibleClasses(ClassName)
+    self:DeactivateIncompatibleClasses(ClassName, true)
 
     Class:Initialize()
     self._activeClasses[ClassName] = Class

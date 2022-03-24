@@ -25,7 +25,7 @@ function Compatibilities.IsCompatible(ClassA, ClassB)
     local ClassBList = Compatibilities._CORE_COMPATIBILITIES[ClassB]
 
     if ClassA == ClassB then
-        return true
+        return false
     end
 
     if not (ClassAList and ClassBList) then
