@@ -3,16 +3,15 @@
     Initializes classes that are active and deinitializes ones that aren't, simple!
 ]]--
 
-local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local BLACKLISTED_CLASSES = {"_info", "_std", "_compatibilities", "_template"}
+local BLACKLISTED_CLASSES = {"_info", "_std", "_template"}
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
 
 local BaseClass = require(ReplicatedStorage.Source.Modules.Classes._std)
-local Compatibilities = require(ReplicatedStorage.Source.Modules.Classes._compatibilities)
+local Compatibilities = require(ReplicatedStorage.Source.Modules.Compatibilities)
 
 local ClassController = Knit.CreateController({
     Name = "ClassController",
@@ -36,21 +35,10 @@ function ClassController:_loadClasses()
 end
 
 function ClassController:GetClassArray()
-    return TableUtil.Copy(Compatibilities._CLASS_LIST)
+    return TableUtil.Copy(self._class_array)
 end
 
-function ClassController:DeactivateIncompatibleClasses(ClassName, StopSelf)
-    for _, IncompatibleClass in pairs(Compatibilities.GetIncompatibilities(ClassName)) do
-        for _, Class in pairs(self._activeClasses) do
-            local Name = Class.Name
-            if Name == IncompatibleClass and ((Name == ClassName and StopSelf) or Name ~= ClassName) then
-                self:DeactivateClass(Name)
-            end
-        end
-    end
-end
-
-function ClassController:ActivateClass(ClassName, Environment)
+function ClassController:_activateClass(ClassName, Environment)
     local ClassTemplate = self._loadedClasses[ClassName]
 
     if not ClassTemplate then
@@ -61,33 +49,54 @@ function ClassController:ActivateClass(ClassName, Environment)
         __index = BaseClass.new(ClassName, self, Environment or {})
     })
 
-    self:DeactivateIncompatibleClasses(ClassName, true)
-
-    Class:Initialize()
+    Class:InitializeClient()
     self._activeClasses[ClassName] = Class
 
     return Class
 end
 
-function ClassController:DeactivateClass(ClassName)
+function ClassController:_deactivateClass(ClassName)
     local Class = self._activeClasses[ClassName]
 
     if not Class then
         return
     end
 
-    Class:Deinitialize()
+    Class:DeinitializeClient()
+    Class = nil
     self._activeClasses[ClassName] = nil
 end
 
-function ClassController:KnitInit()
-    local _class_array = self:_loadClasses()
-    self._activeClasses = {}
-    Compatibilities._CLASS_LIST = TableUtil.Copy(_class_array)
+function ClassController:ActivateClass(ClassName, Environment)
+    local ClassService = Knit.GetService("ClassService")
+
+    ClassService:ActivateClass(ClassName, Environment)
 end
 
-function ClassController:KnitStart()
+function ClassController:DeactivateClass(ClassName)
+    local ClassService = Knit.GetService("ClassService")
 
+    ClassService:DeactivateClass(ClassName)
+end
+
+function ClassController:KnitInit()
+    local ClassService = Knit.GetService("ClassService")
+
+    self._class_array = self:_loadClasses()
+    self._activeClasses = {}
+    Compatibilities._CLASS_LIST = TableUtil.Copy(self._class_array)
+
+    ClassService.UpdateClass:Connect(function(Action, ...)
+        local Args = {...}
+
+        if Action == "Activate" then
+            self:_activateClass(Args[1], Args[2])
+        end
+
+        if Action == "Deactivate" then
+            self:_deactivateClass(Args[1])
+        end
+    end)
 end
 
 return ClassController

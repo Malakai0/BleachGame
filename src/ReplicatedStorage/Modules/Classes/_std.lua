@@ -5,9 +5,10 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 local PlayerClass = {}
 PlayerClass.__index = PlayerClass
 
-function PlayerClass.new(Name, ControllerReference, DefaultEnvironment)
+function PlayerClass.new(Name, Player, ControllerReference, DefaultEnvironment)
     local self = {
         Name = Name,
+        Player = Player,
         Controller = ControllerReference,
         Environment = (DefaultEnvironment or {}),
 
@@ -31,6 +32,14 @@ end
 
 function PlayerClass:Initialize()
     warn(string.format("No implementation of %sClass:Initialize()", self.Name))
+end
+
+function PlayerClass:InitializeClient()
+
+end
+
+function PlayerClass:DeinitializeClient()
+
 end
 
 return PlayerClass

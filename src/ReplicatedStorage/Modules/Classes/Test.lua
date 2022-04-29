@@ -13,4 +13,13 @@ function Test:Deinitialize()
     self.Trove:Destroy()
 end
 
+function Test:InitializeClient()
+    print("Initialized \"Test\"")
+end
+
+function Test:DeinitializeClient()
+    print("Deinitialized \"Test\"")
+    self.Trove:Destroy()
+end
+
 return Test

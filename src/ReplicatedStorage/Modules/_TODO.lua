@@ -7,11 +7,12 @@
 
     High priority:
 
+        
 
 
     Medium priority:
 
-
+        - Create an inventory UI with controls. :)
 
 
     Low priority:

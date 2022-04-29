@@ -7,10 +7,6 @@
     *Note to self: try not to fuck up spelling the word compatibilities.*
 ]]--
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
-
 local Compatibilities = {}
 
 Compatibilities._CORE_COMPATIBILITIES = {
