@@ -112,12 +112,14 @@ end
 function InventoryService.Client:Equip(Player, Index)
     if self.Server:Equip(Player, Index) then
         self.InventoryUpdate:Fire(Player, "Equip", Index)
+        return true
     end
 end
 
 function InventoryService.Client:Unequip(Player)
     if self.Server:Unequip(Player) then
         self.InventoryUpdate:Fire(Player, "Unequip")
+        return true
     end
 end
 
@@ -129,6 +131,7 @@ function InventoryService.Client:Activated(Player)
     end
 
     Inventory._holding:Activated()
+    return true
 end
 
 function InventoryService.Client:Unactivated(Player)
@@ -139,6 +142,7 @@ function InventoryService.Client:Unactivated(Player)
     end
 
     Inventory._holding:Unactivated()
+    return true
 end
 
 function InventoryService.Client:FetchInventory(Player)

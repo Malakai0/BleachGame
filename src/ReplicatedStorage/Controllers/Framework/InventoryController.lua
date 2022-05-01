@@ -40,7 +40,9 @@ function InventoryController:AddItem(ItemName, State)
         __index = PlayerItem.new(ItemName, Players.LocalPlayer, State)
     })
 
-    Item:Init()
+    if Item.InitClient then
+        Item:InitClient()
+    end
 
     return Item
 end
@@ -52,7 +54,9 @@ function InventoryController:Equip(Index)
 
     local InventoryService = Knit.GetService("InventoryService")
 
-    InventoryService:Equip(Index)
+    if InventoryService:Equip(Index) then
+        self._inventory.Slots[Index]:EquipClient()
+    end
 end
 
 function InventoryController:Unequip()
@@ -62,7 +66,9 @@ function InventoryController:Unequip()
 
     local InventoryService = Knit.GetService("InventoryService")
 
-    InventoryService:Unequip()
+    if InventoryService:Unequip() then
+        self._inventory._holding:UnequipClient()
+    end
 end
 
 function InventoryController:_loadItems()
@@ -110,7 +116,9 @@ function InventoryController:KnitInit()
             return
         end
 
-        InventoryService:Activated()
+        if InventoryService:Activated() then
+            self._inventory._holding:ActivatedClient()
+        end
     end)
 
     self._mouse.LeftUp:Connect(function()
@@ -118,7 +126,9 @@ function InventoryController:KnitInit()
             return
         end
 
-        InventoryService:Unactivated()
+        if InventoryService:Unactivated() then
+            self._inventory._holding:UnactivatedClient()
+        end
     end)
 end
 
@@ -129,7 +139,6 @@ function InventoryController:KnitStart()
         return Tool.Name == "Test"
     end)
 
-    print(self._inventory)
     if Tools[1] then
         self:Equip(Tools[1])
     end

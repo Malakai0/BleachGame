@@ -46,6 +46,26 @@ function PlayerItem.new(Name, Player, DefaultState)
     return self
 end
 
+function PlayerItem:InitClient()
+
+end
+
+function PlayerItem:ActivatedClient()
+
+end
+
+function PlayerItem:UnactivatedClient()
+
+end
+
+function PlayerItem:EquipClient()
+
+end
+
+function PlayerItem:UnequipClient()
+
+end
+
 function PlayerItem:Activated()
 
 end
