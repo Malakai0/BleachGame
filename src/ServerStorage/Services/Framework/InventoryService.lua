@@ -161,6 +161,7 @@ function InventoryService:KnitInit()
     Players.PlayerAdded:Connect(function(player)
         task.wait(2)
         self:AddItem(player, "Test")
+        print("Added test item")
     end)
 end
 

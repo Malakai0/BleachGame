@@ -11,6 +11,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local Input = require(ReplicatedStorage.Packages.Input)
 local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
 
+local Query = require(ReplicatedStorage.Source.Modules.Query)
 local PlayerItem = require(ReplicatedStorage.Source.Modules.Items._std)
 
 local InventoryController = Knit.CreateController({
@@ -18,15 +19,15 @@ local InventoryController = Knit.CreateController({
 })
 
 function InventoryController:QueryInventory(Predicate)
-    local Items = {}
+    local Filtered = self._inventoryQuery:SetItems(self._inventory.Slots, 2):SetPredicate(Predicate):DefaultIfEmpty(nil):Clone():Filter()
 
-    for Index, Item in pairs(self._inventory.Slots) do
-        if Predicate(Item) then
-            table.insert(Items, Index)
-        end
+    local Table = {}
+
+    for _, Item in pairs(Filtered._items) do
+        table.insert(Table, Item)
     end
 
-    return Items
+    return Table
 end
 
 function InventoryController:AddItem(ItemName, State)
@@ -48,7 +49,7 @@ function InventoryController:AddItem(ItemName, State)
 end
 
 function InventoryController:Equip(Index)
-    if not self._inventory.Slots[Index] then
+    if not (Index and self._inventory.Slots[Index]) then
         return
     end
 
@@ -88,6 +89,7 @@ function InventoryController:KnitInit()
 
     self._inventory = Inventory
 
+    self._inventoryQuery = Query.new()
     self._classes = self:_loadItems()
     self._mouse = Input.Mouse.new()
 
@@ -139,9 +141,7 @@ function InventoryController:KnitStart()
         return Tool.Name == "Test"
     end)
 
-    if Tools[1] then
-        self:Equip(Tools[1])
-    end
+    self:Equip(Tools[1])
 end
 
 return InventoryController
